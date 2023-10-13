@@ -10,7 +10,7 @@ pub fn chunk_reqs(requests: usize, threads: usize, thread_nr: usize) -> usize {
 
 #[inline(always)]
 pub fn print_stats(total_time: u128, timers: Vec<u128>, requests: usize) {
-    histogram(timers.clone());
+    print_histogram(timers.clone());
     println!("{:<25}{}", "Total time:", fmt_time(total_time));
     println!("{:<25}{}", "Avg time per req:", fmt_time(total_time / requests as u128));
     println!("{:<25}{:.2} req/s", "Requests per second:", req_per_sec(total_time, requests));
@@ -29,7 +29,7 @@ fn fmt_time(total_time: u128) -> String {
 }
 
 #[inline(always)]
-fn histogram(mut timers: Vec<u128>) {
+fn print_histogram(mut timers: Vec<u128>) {
     const N_BARS: f64 = 200.0;
     timers.sort();
 
@@ -77,7 +77,7 @@ fn histogram(mut timers: Vec<u128>) {
     let bin_ranges = (0..10).into_iter().map(|v| p05 + v * bin_size).collect::<Vec<_>>();
 
     // --- Draw histogram
-    println!("{:^35}","Histogram of p5 - p95");
+    println!("{:^35}","Histogram of P5 - P95");
 
     // Set ranges for histogram bin text
     for (i, bin) in bins.iter().enumerate() {
