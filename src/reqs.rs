@@ -3,7 +3,7 @@ use tokio::time::Instant;
 
 use crate::cli::HttpMethod;
 
-pub async fn run_requests(http_method: HttpMethod, requests: usize) -> Result<Vec<u128>, Error> {
+pub async fn dispatch_requests(http_method: HttpMethod, requests: usize) -> Result<Vec<u128>, Error> {
     let client = Client::new();
     let mut results = Vec::with_capacity(requests);
     let requests = requests + 1;
