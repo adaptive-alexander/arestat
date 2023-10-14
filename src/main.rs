@@ -11,6 +11,5 @@ async fn main() {
     let (total_time, timers) = run_requests(args.threads, args.requests, args.method).await;
 
     let mut stats = Stats::new(total_time, timers, args.requests);
-    stats.get_stats();
     stats.print();
 }

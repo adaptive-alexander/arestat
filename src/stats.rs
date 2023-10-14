@@ -19,14 +19,17 @@ pub struct Stats {
 
 impl Stats {
     pub fn new(total_time: u128, timers: Vec<u128>, requests: usize) -> Self {
-        Self {
+        let mut slf = Self {
             total_time,
             timers,
             requests,
             ..Default::default()
-        }
+        };
+
+        slf.get_stats();
+        slf
     }
-    pub fn get_stats(&mut self) {
+    fn get_stats(&mut self) {
         self.total_time = self.total_time;
         self.avg_time_per_request = self.total_time / self.requests as u128;
         self.req_per_sec = self.requests as f64 / (self.total_time as f64 / 1_000_000_000.0);
