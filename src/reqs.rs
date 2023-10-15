@@ -6,6 +6,8 @@ use crate::cli::HttpMethod;
 pub async fn dispatch_requests(http_method: HttpMethod, requests: usize) -> Result<Vec<u128>, Error> {
     let client = Client::new();
     let mut results = Vec::with_capacity(requests);
+
+    // Add one for warm-up
     let requests = requests + 1;
     match http_method {
         HttpMethod::Get(args) => {
@@ -44,5 +46,6 @@ pub async fn dispatch_requests(http_method: HttpMethod, requests: usize) -> Resu
             }
         }
     };
+    // Remove warm-up timer
     Ok(results[1..].to_owned())
 }

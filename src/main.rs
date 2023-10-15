@@ -8,8 +8,10 @@ use arestat::stats::Stats;
 async fn main() {
     let args = Cli::parse();
 
+    println!("Running requests...");
+
     let (total_time, timers) = run_requests(args.threads, args.requests, args.method).await;
 
-    let mut stats = Stats::new(total_time, timers, args.requests);
+    let stats = Stats::new(total_time, timers, args.requests);
     stats.print();
 }

@@ -30,7 +30,6 @@ impl Stats {
         slf
     }
     fn get_stats(&mut self) {
-        self.total_time = self.total_time;
         self.avg_time_per_request = self.total_time / self.requests as u128;
         self.req_per_sec = self.requests as f64 / (self.total_time as f64 / 1_000_000_000.0);
 
@@ -40,7 +39,7 @@ impl Stats {
         self.p95 = self.timers[(self.timers.len() as f64 * 0.95) as usize];
         self.p99 = self.timers[(self.timers.len() as f64 * 0.99) as usize];
 
-        (self.min, self.max) = (self.timers.iter().min().unwrap().clone(), self.timers.iter().max().unwrap().clone());
+        (self.min, self.max) = (*self.timers.iter().min().unwrap(), *self.timers.iter().max().unwrap());
         let range = self.p95 - self.p05;
         self.bin_size = ((range as f64) / 10.0).ceil() as u128;
 
@@ -66,12 +65,9 @@ impl Stats {
 
         self.bins = bins;
 
-        self.bin_ranges = (0..10).into_iter().map(|v| self.p05 + v * self.bin_size).collect::<Vec<_>>();
+        self.bin_ranges = (0..10).map(|v| self.p05 + v * self.bin_size).collect::<Vec<_>>();
     }
     pub fn print(&self) {
-        if self.bins.len() == 0 {
-            panic!("Stats need to be set with get_stats before printing")
-        }
         const N_BARS: f64 = 200.0;
 
         let bar_scale_factor = N_BARS / self.timers.len() as f64;
@@ -99,7 +95,7 @@ impl Stats {
             } else {
                 format!("{} - {} {}", self.bin_ranges[i] / time_scale_factor + 1, self.bin_ranges[i + 1] / time_scale_factor, time_unit)
             };
-            println!("{}", format!("{:<25}{:|<2$}", range, "", (bin.iter().count() as f64 * bar_scale_factor) as usize));
+            println!("{:<25}{:|<2$}", range, "", (bin.len() as f64 * bar_scale_factor) as usize);
         }
 
         println!("\n{:^35}", "Statistics".blue());
