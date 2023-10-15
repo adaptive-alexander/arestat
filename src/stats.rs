@@ -100,7 +100,7 @@ impl Stats {
 
         println!("\n{:^35}", "Statistics".blue());
         println!("{:<25}{}", "Total time:", fmt_time(self.total_time));
-        println!("{:<25}{:.2} req/S", "Requests per sec:", self.req_per_sec);
+        println!("{:<25}{:.2} req/s", "Requests per sec:", self.req_per_sec);
         println!("{:<25}{}", "Avg time per request", fmt_time(self.avg_time_per_request));
         println!("{:<25}{} {}", "P95:", self.p95 / time_scale_factor, time_unit);
         println!("{:<25}{} {}", "P99:", self.p99 / time_scale_factor, time_unit);
