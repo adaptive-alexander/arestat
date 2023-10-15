@@ -35,9 +35,9 @@ impl Stats {
 
         self.timers.sort();
 
-        self.p05 = self.timers[(self.timers.len() as f64 * 0.05) as usize];
-        self.p95 = self.timers[(self.timers.len() as f64 * 0.95) as usize];
-        self.p99 = self.timers[(self.timers.len() as f64 * 0.99) as usize];
+        self.p05 = self.timers[(self.timers.len() as f64 *0.05).round() as usize];
+        self.p95 = self.timers[(self.timers.len() as f64 * 0.95).round() as usize];
+        self.p99 = self.timers[(self.timers.len() as f64 * 0.99).round() as usize];
 
         (self.min, self.max) = (*self.timers.iter().min().unwrap(), *self.timers.iter().max().unwrap());
         let range = self.p95 - self.p05;
