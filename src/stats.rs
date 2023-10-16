@@ -13,7 +13,7 @@ pub struct Stats {
     p95: u128,
     p99: u128,
     bins: Vec<Vec<u128>>,
-    bin_ranges: Vec<u128>,
+    bin_lower_range: Vec<u128>,
     bin_size: u128,
 }
 
@@ -35,14 +35,17 @@ impl Stats {
 
         self.timers.sort();
 
+        // Percentiles
         self.p05 = self.timers[(self.timers.len() as f64 *0.05).round() as usize];
         self.p95 = self.timers[(self.timers.len() as f64 * 0.95).round() as usize];
         self.p99 = self.timers[(self.timers.len() as f64 * 0.99).round() as usize];
 
+        // Ranges
         (self.min, self.max) = (*self.timers.iter().min().unwrap(), *self.timers.iter().max().unwrap());
         let range = self.p95 - self.p05;
         self.bin_size = ((range as f64) / 10.0).ceil() as u128;
 
+        // --- Sort into bins
         let mut bins = Vec::with_capacity(self.timers.len());
         for _ in 0..10 {
             bins.push(vec![])
@@ -65,7 +68,7 @@ impl Stats {
 
         self.bins = bins;
 
-        self.bin_ranges = (0..10).map(|v| self.p05 + v * self.bin_size).collect::<Vec<_>>();
+        self.bin_lower_range = (0..10).map(|v| self.p05 + v * self.bin_size).collect::<Vec<_>>();
     }
     pub fn print(&self) {
         const N_BARS: f64 = 200.0;
@@ -74,12 +77,14 @@ impl Stats {
         let time_scale_factor = match self.p95 {
             0..=10_000 => 1,
             10_001..=10_000_000 => 1_000,
-            _ => 1_000_000
+            10_000_001..=10_000_000_000 => 1_000_000,
+            _ => 1_000_000_000
         };
         let time_unit = match time_scale_factor {
             1 => "ns",
             1_000 => "µs",
             1_000_000 => "ms",
+            1_000_000_000 => "s",
             _ => "something went terribly wrong"
         };
 
@@ -89,11 +94,11 @@ impl Stats {
         // Set ranges for histogram bin text
         for (i, bin) in self.bins.iter().enumerate() {
             let range = if i == self.bins.len() - 1 {
-                format!("{} - {} {}", self.bin_ranges[i] / time_scale_factor + 1, (self.bin_ranges[i] + self.bin_size) / time_scale_factor, time_unit)
+                format!("{} - {} {}", self.bin_lower_range[i] / time_scale_factor + 1, (self.bin_lower_range[i] + self.bin_size) / time_scale_factor, time_unit)
             } else if i == 0 {
-                format!("{} - {} {}", self.bin_ranges[i] / time_scale_factor, self.bin_ranges[i + 1] / time_scale_factor, time_unit)
+                format!("{} - {} {}", self.bin_lower_range[i] / time_scale_factor, self.bin_lower_range[i + 1] / time_scale_factor, time_unit)
             } else {
-                format!("{} - {} {}", self.bin_ranges[i] / time_scale_factor + 1, self.bin_ranges[i + 1] / time_scale_factor, time_unit)
+                format!("{} - {} {}", self.bin_lower_range[i] / time_scale_factor + 1, self.bin_lower_range[i + 1] / time_scale_factor, time_unit)
             };
             println!("{:<25}{:|<2$}", range, "", (bin.len() as f64 * bar_scale_factor) as usize);
         }
@@ -101,7 +106,7 @@ impl Stats {
         println!("\n{:^35}", "Statistics".blue());
         println!("{:<25}{}", "Total time:", fmt_time(self.total_time));
         println!("{:<25}{:.2} req/s", "Requests per sec:", self.req_per_sec);
-        println!("{:<25}{}", "Avg time per request", fmt_time(self.avg_time_per_request));
+        println!("{:<25}{} {}", "Avg time per request", self.avg_time_per_request / time_scale_factor, time_unit);
         println!("{:<25}{} {}", "P95:", self.p95 / time_scale_factor, time_unit);
         println!("{:<25}{} {}", "P99:", self.p99 / time_scale_factor, time_unit);
         println!("{:<25}{}, {} {}", "min, max:", self.min / time_scale_factor, self.max / time_scale_factor, time_unit);
