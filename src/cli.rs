@@ -29,7 +29,7 @@ pub struct Cli {
     pub threads: usize,
     #[arg(short, long, default_value_t = 50)]
     pub requests: usize,
-    #[arg(long)]
+    #[arg(long, help = "Set rate limit")]
     pub req_rate: Option<u16>,
     #[arg(long)]
     pub headers: Option<String>,
