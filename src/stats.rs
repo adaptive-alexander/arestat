@@ -6,6 +6,7 @@ pub struct Stats {
     timers: Vec<u128>,
     requests: usize,
     avg_time_per_request: u128,
+    avg_latency: u128,
     req_per_sec: f64,
     min: u128,
     max: u128,
@@ -31,6 +32,7 @@ impl Stats {
     }
     fn get_stats(&mut self) {
         self.avg_time_per_request = self.total_time / self.requests as u128;
+        self.avg_latency = self.timers.iter().sum::<u128>() / self.requests as u128;
         self.req_per_sec = self.requests as f64 / (self.total_time as f64 / 1_000_000_000.0);
 
         self.timers.sort();
@@ -106,7 +108,8 @@ impl Stats {
         println!("\n{:^35}", "Statistics".blue());
         println!("{:<25}{}", "Total time:", fmt_time(self.total_time));
         println!("{:<25}{:.2} req/s", "Requests per sec:", self.req_per_sec);
-        println!("{:<25}{} {}", "Avg time per request", self.avg_time_per_request / time_scale_factor, time_unit);
+        println!("{:<25}{} {}", "Avg time per request:", self.avg_time_per_request / time_scale_factor, time_unit);
+        println!("{:<25}{} {}", "Avg latency:", self.avg_latency / time_scale_factor, time_unit);
         println!("{:<25}{} {}", "P95:", self.p95 / time_scale_factor, time_unit);
         println!("{:<25}{} {}", "P99:", self.p99 / time_scale_factor, time_unit);
         println!("{:<25}{}, {} {}", "min, max:", self.min / time_scale_factor, self.max / time_scale_factor, time_unit);
