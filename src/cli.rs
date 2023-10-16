@@ -30,5 +30,7 @@ pub struct Cli {
     #[arg(short, long, default_value_t = 50)]
     pub requests: usize,
     #[arg(long)]
+    pub req_rate: Option<u16>,
+    #[arg(long)]
     pub headers: Option<String>,
 }
