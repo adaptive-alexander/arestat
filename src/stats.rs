@@ -91,18 +91,20 @@ impl Stats {
         };
 
         // --- Draw histogram
-        println!("{:^35}", "Histogram of P5 - P95".blue());
+        if self.requests > 10 {
+            println!("{:^35}", "Histogram of P5 - P95".blue());
 
-        // Set ranges for histogram bin text
-        for (i, bin) in self.bins.iter().enumerate() {
-            let range = if i == self.bins.len() - 1 {
-                format!("{} - {} {}", self.bin_lower_range[i] / time_scale_factor + 1, (self.bin_lower_range[i] + self.bin_size) / time_scale_factor, time_unit)
-            } else if i == 0 {
-                format!("{} - {} {}", self.bin_lower_range[i] / time_scale_factor, self.bin_lower_range[i + 1] / time_scale_factor, time_unit)
-            } else {
-                format!("{} - {} {}", self.bin_lower_range[i] / time_scale_factor + 1, self.bin_lower_range[i + 1] / time_scale_factor, time_unit)
-            };
-            println!("{:<25}{:|<2$}", range, "", (bin.len() as f64 * bar_scale_factor) as usize);
+            // Set ranges for histogram bin text
+            for (i, bin) in self.bins.iter().enumerate() {
+                let range = if i == self.bins.len() - 1 {
+                    format!("{} - {} {}", self.bin_lower_range[i] / time_scale_factor + 1, (self.bin_lower_range[i] + self.bin_size) / time_scale_factor, time_unit)
+                } else if i == 0 {
+                    format!("{} - {} {}", self.bin_lower_range[i] / time_scale_factor, self.bin_lower_range[i + 1] / time_scale_factor, time_unit)
+                } else {
+                    format!("{} - {} {}", self.bin_lower_range[i] / time_scale_factor + 1, self.bin_lower_range[i + 1] / time_scale_factor, time_unit)
+                };
+                println!("{:<25}{:|<2$}", range, "", (bin.len() as f64 * bar_scale_factor) as usize);
+            }
         }
 
         println!("\n{:^35}", "Statistics".blue());

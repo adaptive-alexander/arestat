@@ -1,5 +1,3 @@
-use tokio::time::Instant;
-
 use crate::cli::HttpMethod;
 use crate::reqs::dispatch_requests;
 use crate::stats::chunk_reqs;
@@ -29,7 +27,6 @@ impl ReqRunner {
     }
     pub async fn run_requests(self) -> (u128, Vec<u128>) {
         let mut tasks = Vec::with_capacity(self.threads);
-        let start = Instant::now();
 
         // --- Spawn tasks
         for i in 0..self.threads {
@@ -44,8 +41,8 @@ impl ReqRunner {
         }
 
         // Output
+        let total_time = timers.iter().map(|v| v.iter().sum()).max().unwrap();
         let timers = timers.into_iter().flatten().collect::<Vec<u128>>();
-        (start.elapsed().as_nanos(), timers)
+        (total_time, timers)
     }
 }
-
