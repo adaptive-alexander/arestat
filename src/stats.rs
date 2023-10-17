@@ -38,9 +38,9 @@ impl Stats {
         self.timers.sort();
 
         // Percentiles
-        self.p05 = self.timers[(self.timers.len() as f64 *0.05).round() as usize];
-        self.p95 = self.timers[(self.timers.len() as f64 * 0.95).round() as usize];
-        self.p99 = self.timers[(self.timers.len() as f64 * 0.99).round() as usize];
+        self.p05 = self.timers[((self.timers.len() - 1) as f64 * 0.05).round() as usize];
+        self.p95 = self.timers[((self.timers.len() - 1) as f64 * 0.95).round() as usize];
+        self.p99 = self.timers[((self.timers.len() - 1) as f64 * 0.99).round() as usize];
 
         // Ranges
         (self.min, self.max) = (*self.timers.iter().min().unwrap(), *self.timers.iter().max().unwrap());
