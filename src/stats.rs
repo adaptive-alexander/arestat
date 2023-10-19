@@ -7,10 +7,13 @@ pub struct Stats {
     requests: usize,
     avg_time_per_request: u128,
     avg_latency: u128,
+    median_latency: u128,
     req_per_sec: f64,
     min: u128,
     max: u128,
     p05: u128,
+    p25: u128,
+    p75: u128,
     p95: u128,
     p99: u128,
     bins: Vec<Vec<u128>>,
@@ -33,14 +36,17 @@ impl Stats {
     fn get_stats(&mut self) {
         self.avg_time_per_request = self.total_time / self.requests as u128;
         self.avg_latency = self.timers.iter().sum::<u128>() / self.requests as u128;
+        self.median_latency = self.timers[((self.requests - 1) as f64 * 0.5) as usize];
         self.req_per_sec = self.requests as f64 / (self.total_time as f64 / 1_000_000_000.0);
 
         self.timers.sort();
 
         // Percentiles
-        self.p05 = self.timers[((self.timers.len() - 1) as f64 * 0.05).round() as usize];
-        self.p95 = self.timers[((self.timers.len() - 1) as f64 * 0.95).round() as usize];
-        self.p99 = self.timers[((self.timers.len() - 1) as f64 * 0.99).round() as usize];
+        self.p05 = self.timers[((self.requests - 1) as f64 * 0.05).round() as usize];
+        self.p25 = self.timers[((self.requests - 1) as f64 * 0.25).round() as usize];
+        self.p75 = self.timers[((self.requests - 1) as f64 * 0.75).round() as usize];
+        self.p95 = self.timers[((self.requests - 1) as f64 * 0.95).round() as usize];
+        self.p99 = self.timers[((self.requests - 1) as f64 * 0.99).round() as usize];
 
         // Ranges
         (self.min, self.max) = (*self.timers.iter().min().unwrap(), *self.timers.iter().max().unwrap());
@@ -76,18 +82,11 @@ impl Stats {
         const N_BARS: f64 = 200.0;
 
         let bar_scale_factor = N_BARS / self.timers.len() as f64;
-        let time_scale_factor = match self.p95 {
-            0..=10_000 => 1,
-            10_001..=10_000_000 => 1_000,
-            10_000_001..=10_000_000_000 => 1_000_000,
-            _ => 1_000_000_000
-        };
-        let time_unit = match time_scale_factor {
-            1 => "ns",
-            1_000 => "µs",
-            1_000_000 => "ms",
-            1_000_000_000 => "s",
-            _ => "something went terribly wrong"
+        let (time_scale_factor, time_unit) = match self.p95 {
+            0..=10_000 => (1, "ns"),
+            10_001..=10_000_000 => (1_000, "µs"),
+            10_000_001..=10_000_000_000 => (1_000_000, "ms"),
+            _ => (1_000_000_000, "s")
         };
 
         // --- Draw histogram
@@ -112,9 +111,11 @@ impl Stats {
         println!("{:<25}{:.2} req/s", "Requests per sec:", self.req_per_sec);
         println!("{:<25}{} {}", "Avg time per request:", self.avg_time_per_request / time_scale_factor, time_unit);
         println!("{:<25}{} {}", "Avg latency:", self.avg_latency / time_scale_factor, time_unit);
+        println!("{:<25}{} {}", "Median latency:", self.median_latency / time_scale_factor, time_unit);
+        println!("{:<25}{}, {} {}", "min, max:", self.min / time_scale_factor, self.max / time_scale_factor, time_unit);
+        println!("{:<25}{} - {} {}", "IQR", self.p25 / time_scale_factor, self.p75 / time_scale_factor, time_unit);
         println!("{:<25}{} {}", "P95:", self.p95 / time_scale_factor, time_unit);
         println!("{:<25}{} {}", "P99:", self.p99 / time_scale_factor, time_unit);
-        println!("{:<25}{}, {} {}", "min, max:", self.min / time_scale_factor, self.max / time_scale_factor, time_unit);
     }
 }
 

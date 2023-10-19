@@ -25,9 +25,9 @@ pub enum HttpMethod {
 pub struct Cli {
     #[command(subcommand)]
     pub method: HttpMethod,
-    #[arg(short, long, default_value_t = 1)]
+    #[arg(short, long, default_value_t = 10)]
     pub threads: usize,
-    #[arg(short, long, default_value_t = 50)]
+    #[arg(short, long, default_value_t = 1000)]
     pub requests: usize,
     #[arg(long, help = "Attempts to limit total requests per second")]
     pub req_rate: Option<u16>,

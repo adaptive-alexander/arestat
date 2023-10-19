@@ -10,6 +10,12 @@ async fn main() {
 
     println!("Running requests...");
 
+    println!("Requests: {}", args.requests);
+    println!("Threads: {}", args.threads);
+    if args.req_rate.is_some() {
+        println!("Requests per second: {}", args.req_rate.unwrap());
+    }
+
     let mut req_runner = ReqRunner::new(args.threads, args.requests, args.method);
 
     if args.req_rate.is_some() {

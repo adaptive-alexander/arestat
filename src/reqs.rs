@@ -9,8 +9,6 @@ pub async fn dispatch_requests(http_method: HttpMethod, requests: usize, req_rat
     let client = Client::new();
     let mut results = Vec::with_capacity(requests);
 
-    // Add one for warm-up
-    let requests = requests + 1;
     let mut limit_timer = Instant::now();
 
     let req_call = match http_method {
@@ -23,7 +21,8 @@ pub async fn dispatch_requests(http_method: HttpMethod, requests: usize, req_rat
 
     match req_rate {
         None => {
-            for _ in 0..requests {
+            // Add one for warm-up
+            for _ in 0..requests + 1 {
                 let start = Instant::now();
                 req_call.try_clone().expect("Failed cloning RequestBuilder, irrecoverable").send().await?;
                 results.push(start.elapsed().as_nanos())
