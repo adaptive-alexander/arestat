@@ -78,7 +78,7 @@ impl Stats {
 
         self.bin_lower_range = (0..10).map(|v| self.p05 + v * self.bin_size).collect::<Vec<_>>();
     }
-    pub fn print(&self) {
+    pub fn pretty_print(&self) {
         const N_BARS: f64 = 200.0;
 
         let bar_scale_factor = N_BARS / self.timers.len() as f64;
