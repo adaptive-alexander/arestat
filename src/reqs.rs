@@ -22,12 +22,14 @@ pub async fn dispatch_requests(http_method: HttpMethod, headers: Option<HttpHead
     }
 
     let req_call = match http_method {
-        HttpMethod::Get(arg) => { client.get(&arg.url).headers(header_map) }
-        HttpMethod::Post(arg) => { client.post(&arg.url).json(&arg.body).headers(header_map) }
-        HttpMethod::Patch(arg) => { client.patch(&arg.url).json(&arg.body).headers(header_map) }
-        HttpMethod::Put(arg) => { client.patch(&arg.url).json(&arg.body).headers(header_map) }
-        HttpMethod::Delete(arg) => { client.get(&arg.url).headers(header_map) }
+        HttpMethod::Get(arg) => { client.get(&arg.url) }
+        HttpMethod::Post(arg) => { client.post(&arg.url).json(&arg.body) }
+        HttpMethod::Patch(arg) => { client.patch(&arg.url).json(&arg.body) }
+        HttpMethod::Put(arg) => { client.patch(&arg.url).json(&arg.body) }
+        HttpMethod::Delete(arg) => { client.get(&arg.url) }
     };
+
+    let req_call = req_call.headers(header_map);
 
     req_call.try_clone().expect("Failed cloning RequestBuilder, irrecoverable").send().await?;
 
@@ -40,12 +42,10 @@ pub async fn dispatch_requests(http_method: HttpMethod, headers: Option<HttpHead
             }
         }
         Some(_) => {
-            // let mut limit_timer = Instant::now();
             let mut interval = interval(Duration::from_secs(1));
             interval.set_missed_tick_behavior(Delay);
 
             let req_rate_thread = req_rate.unwrap() as usize / threads;
-
             let mut reqs_run = 0;
 
             loop {
