@@ -1,4 +1,4 @@
-use crate::cli::HttpMethod;
+use crate::cli::{HttpHeaders, HttpMethod};
 use crate::reqs::dispatch_requests;
 use crate::stats::chunk_reqs;
 
@@ -10,15 +10,17 @@ pub struct ReqRunner {
     threads: usize,
     requests: usize,
     method: HttpMethod,
+    headers: Option<HttpHeaders>,
     req_rate: Option<u16>,
 }
 
 impl ReqRunner {
-    pub fn new(threads: usize, requests: usize, method: HttpMethod) -> Self {
+    pub fn new(threads: usize, requests: usize, method: HttpMethod, headers: Option<HttpHeaders>) -> Self {
         Self {
             threads,
             requests,
             method,
+            headers,
             req_rate: None,
         }
     }
@@ -31,7 +33,7 @@ impl ReqRunner {
         // --- Spawn tasks
         for i in 0..self.threads {
             let reqs = chunk_reqs(self.requests, self.threads, i);
-            tasks.push(tokio::spawn(dispatch_requests(self.method.clone(), reqs, self.req_rate, self.threads)))
+            tasks.push(tokio::spawn(dispatch_requests(self.method.clone(), self.headers.clone(), reqs, self.req_rate, self.threads)))
         }
 
         // Await to make sure tasks complete

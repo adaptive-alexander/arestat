@@ -2,20 +2,30 @@ use std::collections::VecDeque;
 use std::time::Duration;
 
 use reqwest::{Client, Error};
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use tokio::time::{Instant, sleep};
 
-use crate::cli::HttpMethod;
+use crate::cli::{HttpHeaders, HttpMethod};
 
-pub async fn dispatch_requests(http_method: HttpMethod, requests: usize, req_rate: Option<u16>, threads: usize) -> Result<Vec<u128>, Error> {
+pub async fn dispatch_requests(http_method: HttpMethod, headers: Option<HttpHeaders>, requests: usize, req_rate: Option<u16>, threads: usize) -> Result<Vec<u128>, Error> {
     let client = Client::new();
     let mut results = VecDeque::with_capacity(requests);
 
+    let mut header_map = HeaderMap::new();
+
+    if let Some(headers) = headers {
+        for (h, v) in headers.0 {
+            header_map.insert(h.parse::<HeaderName>().expect("Failed converting key to HeaderName"),
+                              v.parse::<HeaderValue>().expect("Failed converting value to a HeaderValue"));
+        }
+    }
+
     let req_call = match http_method {
-        HttpMethod::Get(arg) => { client.get(&arg.url) }
-        HttpMethod::Post(arg) => { client.post(&arg.url).json(&arg.body) }
-        HttpMethod::Patch(arg) => { client.patch(&arg.url).json(&arg.body) }
-        HttpMethod::Put(arg) => { client.patch(&arg.url).json(&arg.body) }
-        HttpMethod::Delete(arg) => { client.get(&arg.url) }
+        HttpMethod::Get(arg) => { client.get(&arg.url).headers(header_map) }
+        HttpMethod::Post(arg) => { client.post(&arg.url).json(&arg.body).headers(header_map) }
+        HttpMethod::Patch(arg) => { client.patch(&arg.url).json(&arg.body).headers(header_map) }
+        HttpMethod::Put(arg) => { client.patch(&arg.url).json(&arg.body).headers(header_map) }
+        HttpMethod::Delete(arg) => { client.get(&arg.url).headers(header_map) }
     };
 
     match req_rate {
