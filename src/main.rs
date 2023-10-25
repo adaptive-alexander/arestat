@@ -1,8 +1,8 @@
 use clap::Parser;
 
 use arestat::cli::Cli;
-use arestat::ReqRunner;
 use arestat::stats::Stats;
+use arestat::ReqRunner;
 
 #[tokio::main]
 async fn main() {
