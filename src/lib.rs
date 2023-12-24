@@ -6,12 +6,25 @@ pub mod cli;
 pub mod reqs;
 pub mod stats;
 
+#[derive(Clone)]
+pub struct BasicAuth {
+    username: String,
+    password: Option<String>,
+}
+
+impl BasicAuth {
+    pub fn new(username: String, password: Option<String>) -> Self {
+        Self { username, password }
+    }
+}
+
 pub struct ReqRunner {
     threads: usize,
     requests: usize,
     method: HttpMethod,
     headers: Option<HttpHeaders>,
     req_rate: Option<u16>,
+    auth: Option<BasicAuth>,
 }
 
 impl ReqRunner {
@@ -20,6 +33,7 @@ impl ReqRunner {
         requests: usize,
         method: HttpMethod,
         headers: Option<HttpHeaders>,
+        auth: Option<BasicAuth>
     ) -> Self {
         Self {
             threads,
@@ -27,6 +41,7 @@ impl ReqRunner {
             method,
             headers,
             req_rate: None,
+            auth,
         }
     }
     pub fn with_req_rate(&mut self, req_rate: Option<u16>) {
@@ -44,6 +59,7 @@ impl ReqRunner {
                 reqs,
                 self.req_rate,
                 self.threads,
+                self.auth.clone(),
             )))
         }
 
@@ -59,3 +75,5 @@ impl ReqRunner {
         (total_time, timers)
     }
 }
+
+// todo!("Add argument to write output to file")

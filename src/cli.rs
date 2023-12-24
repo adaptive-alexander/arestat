@@ -4,7 +4,7 @@ use std::str::FromStr;
 use clap::{Args, Parser, Subcommand};
 
 #[derive(Debug, Clone)]
-pub struct HttpHeaders(pub(crate) HashMap<String, String>);
+pub struct HttpHeaders(pub HashMap<String, String>);
 
 impl FromStr for HttpHeaders {
     type Err = clap::Error;
@@ -56,6 +56,10 @@ pub struct Cli {
     pub requests: usize,
     #[arg(long, help = "Attempts to limit total requests per second")]
     pub req_rate: Option<u16>,
+    #[arg(long, help = "Attempts to limit total requests per second")]
+    pub username: Option<String>,
+    #[arg(long, help = "Attempts to limit total requests per second")]
+    pub password: Option<String>,
     #[arg(long, help = "Format: header:value header:value... (note spaces)")]
     pub headers: Option<HttpHeaders>,
 }
