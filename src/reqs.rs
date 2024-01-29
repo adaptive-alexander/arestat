@@ -33,19 +33,17 @@ pub async fn dispatch_requests(
         }
     }
 
-    // todo!("Remake into a macro")
-    let req_call = match (http_method, auth.is_some()) {
-        (HttpMethod::Get(arg), false) => client.get(&arg.url),
-        (HttpMethod::Post(arg), false) => client.post(&arg.url).json(&arg.body),
-        (HttpMethod::Patch(arg), false) => client.patch(&arg.url).json(&arg.body),
-        (HttpMethod::Put(arg), false) => client.patch(&arg.url).json(&arg.body),
-        (HttpMethod::Delete(arg), false) => client.get(&arg.url),
-        (HttpMethod::Get(arg), true) => client.get(&arg.url).basic_auth(auth.as_ref().unwrap().username.clone(), auth.as_ref().unwrap().password.clone()),
-        (HttpMethod::Post(arg), true) => client.post(&arg.url).basic_auth(auth.as_ref().unwrap().username.clone(), auth.as_ref().unwrap().password.clone()),
-        (HttpMethod::Patch(arg), true) => client.patch(&arg.url).json(&arg.body).basic_auth(auth.as_ref().unwrap().username.clone(), auth.as_ref().unwrap().password.clone()),
-        (HttpMethod::Put(arg), true) => client.patch(&arg.url).json(&arg.body).basic_auth(auth.as_ref().unwrap().username.clone(), auth.as_ref().unwrap().password.clone()),
-        (HttpMethod::Delete(arg), true) => client.get(&arg.url).basic_auth(auth.as_ref().unwrap().username.clone(), auth.as_ref().unwrap().password.clone()),
+    let mut req_call = match http_method {
+        HttpMethod::Get(arg) => client.get(&arg.url),
+        HttpMethod::Post(arg) => client.post(&arg.url).json(&arg.body),
+        HttpMethod::Patch(arg) => client.patch(&arg.url).json(&arg.body),
+        HttpMethod::Put(arg) => client.patch(&arg.url).json(&arg.body),
+        HttpMethod::Delete(arg) => client.get(&arg.url),
     };
+
+    if auth.is_some() {
+        req_call = req_call.basic_auth(auth.as_ref().unwrap().username.clone(), auth.as_ref().unwrap().password.clone())
+    }
 
     let req_call = req_call.headers(header_map);
 
