@@ -56,9 +56,9 @@ pub struct Cli {
     pub requests: usize,
     #[arg(long, help = "Attempts to limit total requests per second")]
     pub req_rate: Option<u16>,
-    #[arg(long, help = "Attempts to limit total requests per second")]
+    #[arg(short, long, help = "Passes username to standard auth header")]
     pub username: Option<String>,
-    #[arg(long, help = "Attempts to limit total requests per second")]
+    #[arg(short, long, help = "Passes password to standard auth header")]
     pub password: Option<String>,
     #[arg(long, help = "Format: header:value header:value... (note spaces)")]
     pub headers: Option<HttpHeaders>,
