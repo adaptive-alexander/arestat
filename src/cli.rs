@@ -12,7 +12,7 @@ impl FromStr for HttpHeaders {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut map = HashMap::new();
 
-        for pair in s.split(' ') {
+        for pair in s.split(',') {
             let parts: Vec<&str> = pair.split(':').collect();
             if parts.len() != 2 {
                 return Err(clap::Error::new(clap::error::ErrorKind::InvalidValue));
@@ -60,6 +60,10 @@ pub struct Cli {
     pub username: Option<String>,
     #[arg(short, long, help = "Passes password to standard auth header")]
     pub password: Option<String>,
-    #[arg(long, help = "Format: header:value header:value... (note spaces)")]
+    #[arg(
+        long,
+        help = "Format: header: value, header: value...",
+        num_args = 0..
+    )]
     pub headers: Option<HttpHeaders>,
 }

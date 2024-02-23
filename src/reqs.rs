@@ -34,11 +34,11 @@ pub async fn dispatch_requests(
     }
 
     let mut req_call = match http_method {
-        HttpMethod::Get(arg) => client.get(&arg.url),
+        HttpMethod::Get(arg) => client.get(arg.url),
         HttpMethod::Post(arg) => client.post(&arg.url).json(&arg.body),
         HttpMethod::Patch(arg) => client.patch(&arg.url).json(&arg.body),
-        HttpMethod::Put(arg) => client.patch(&arg.url).json(&arg.body),
-        HttpMethod::Delete(arg) => client.get(&arg.url),
+        HttpMethod::Put(arg) => client.put(&arg.url).json(&arg.body),
+        HttpMethod::Delete(arg) => client.delete(arg.url),
     };
 
     if auth.is_some() {
@@ -65,11 +65,11 @@ pub async fn dispatch_requests(
                 results.push(start.elapsed().as_nanos())
             }
         }
-        Some(_) => {
+        Some(rr) => {
             let mut interval = interval(Duration::from_secs(1));
             interval.set_missed_tick_behavior(Delay);
 
-            let req_rate_thread = req_rate.unwrap() as usize / threads;
+            let req_rate_thread = rr as usize / threads;
             let mut reqs_run = 0;
 
             loop {

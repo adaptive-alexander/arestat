@@ -100,6 +100,7 @@ impl Stats {
 
             // Set ranges for histogram bin text
             for (i, bin) in self.bins.iter().enumerate() {
+                // Last bin
                 let range = if i == self.bins.len() - 1 {
                     format!(
                         "{} - {} {}",
@@ -107,6 +108,7 @@ impl Stats {
                         (self.bin_lower_range[i] + self.bin_size) / time_scale_factor,
                         time_unit
                     )
+                // First bin
                 } else if i == 0 {
                     format!(
                         "{} - {} {}",

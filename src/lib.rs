@@ -70,6 +70,7 @@ impl ReqRunner {
         }
 
         // Output
+        // Calculates total time per thread timers and uses max time as total_time for load
         let total_time = timers.iter().map(|v| v.iter().sum()).max().unwrap();
         let timers = timers.into_iter().flatten().collect::<Vec<u128>>();
         (total_time, timers)
